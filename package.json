@@ -1,29 +1,8 @@
 {
-  "name": "windborne-project",
+  "name": "windborne-vercel",
   "version": "1.0.0",
-  "type": "module",
-  "description": "WindBorne Systems Balloon Tracker",
-  "main": "index.js",
-  "scripts": {
-    "dev": "vercel dev",
-    "start": "vercel dev"
-  },
-  "dependencies": {
-    "maplibre-gl": "^2.4.0",
-    "node-fetch": "^3.3.2"
-  },
-  "devDependencies": {
-    "vercel": "^48.10.2"
-  },
-  "engines": {
-    "node": ">=18"
-  },
-  "keywords": [
-    "windborne",
-    "balloons",
-    "maplibre",
-    "air-quality",
-    "vercel"
-  ],
+  "description": "Windborne balloon tracker for Vercel",
+  "keywords": ["windborne", "balloons", "map", "vercel"],
+  "author": "Jacob Thompson",
   "license": "MIT"
 }

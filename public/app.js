@@ -1,7 +1,7 @@
 import { fetch24hHistory } from "./lib/balloons.js";
 import { fetchAirQuality } from "./lib/airquality.js";
 
-// ---------------- Map Setup ----------------
+// Map setup (maplibregl is loaded globally from script tag)
 const map = new maplibregl.Map({
   container: "map",
   style: "https://demotiles.maplibre.org/style.json",
@@ -11,36 +11,31 @@ const map = new maplibregl.Map({
 
 let balloonTracks = {};
 let markers = [];
-const MAX_BALLOONS = 50; // limit for testing
+let lines = [];
+const MAX_BALLOONS = 50; // Limit for performance
 
-// ---------------- Start ----------------
 async function init() {
   await loadData();
-  setInterval(loadData, 5 * 60 * 1000); // refresh every 5 min
+  setInterval(loadData, 5 * 60 * 1000); // Refresh every 5 min
 }
 
-// ---------------- Load Data ----------------
 async function loadData() {
   console.log("Refreshing data...");
   const data = await fetch24hHistory();
   balloonTracks = data;
+  console.log("Loaded balloons:", Object.keys(balloonTracks).length);
   renderTracks(balloonTracks);
 }
 
-// ---------------- Rendering ----------------
 function clearOldMarkers() {
   markers.forEach(m => m.remove());
   markers = [];
 
-  const layers = map.getStyle().layers;
-  if (layers) {
-    layers.forEach(l => {
-      if (l.id.startsWith("line-")) {
-        if (map.getLayer(l.id)) map.removeLayer(l.id);
-        if (map.getSource(l.id)) map.removeSource(l.id);
-      }
-    });
-  }
+  lines.forEach(l => {
+    if (map.getLayer(l.id)) map.removeLayer(l.id);
+    if (map.getSource(l.id)) map.removeSource(l.id);
+  });
+  lines = [];
 }
 
 function renderTracks(byId) {
@@ -54,7 +49,7 @@ function renderTracks(byId) {
     const latest = points[points.length - 1];
     if (latest.lat == null || latest.lon == null) return;
 
-    // ---------------- Marker ----------------
+    // Marker
     const marker = new maplibregl.Marker({ color: "#ff4f4f" })
       .setLngLat([latest.lon, latest.lat])
       .addTo(map);
@@ -68,7 +63,7 @@ function renderTracks(byId) {
 
     markers.push(marker);
 
-    // ---------------- Trail ----------------
+    // Trail
     const coords = points.map(p => [p.lon, p.lat]);
     const lineId = `line-${id}`;
 
@@ -79,7 +74,10 @@ function renderTracks(byId) {
 
     map.addSource(lineId, {
       type: "geojson",
-      data: { type: "Feature", geometry: { type: "LineString", coordinates: coords } }
+      data: {
+        type: "Feature",
+        geometry: { type: "LineString", coordinates: coords }
+      }
     });
 
     map.addLayer({
@@ -89,10 +87,11 @@ function renderTracks(byId) {
       layout: { "line-join": "round", "line-cap": "round" },
       paint: { "line-color": "#ff4f4f", "line-width": 2 }
     });
+
+    lines.push({ id: lineId });
   });
 }
 
-// ---------------- Balloon Details ----------------
 function showBalloonDetails(points) {
   const latest = points[points.length - 1];
   const div = document.getElementById("balloon-details");
@@ -111,5 +110,4 @@ History Points: ${points.length}
   `.trim();
 }
 
-// ---------------- Start ----------------
 init();

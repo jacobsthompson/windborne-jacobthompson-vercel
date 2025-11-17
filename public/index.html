@@ -2,17 +2,84 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>WindBorne Balloons</title>
-  <link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" rel="stylesheet" />
-  <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
-  <script type="module" src="/app.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Windborne Balloons Tracker</title>
+
+  <!-- MapLibre GL CSS -->
+  <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+
   <style>
-    #map { width: 100vw; height: 80vh; }
-    #balloon-details { padding: 10px; font-family: monospace; white-space: pre; }
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      font-family: Arial, sans-serif;
+    }
+    #map {
+      width: 100%;
+      height: 80%;
+    }
+    #balloon-details {
+      padding: 10px;
+      height: 20%;
+      overflow-y: auto;
+      background: #f8f8f8;
+      border-top: 1px solid #ccc;
+      white-space: pre-wrap;
+    }
+    #loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 18px;
+      color: #666;
+    }
   </style>
 </head>
 <body>
-  <div id="map"></div>
-  <div id="balloon-details">Click a balloon marker to see details</div>
+  <div id="loading">Loading MapLibre...</div>
+  <div id="map" style="display: none;"></div>
+  <div id="balloon-details" style="display: none;">Click a balloon to see details</div>
+
+  <!-- Load MapLibre GL JS with proper error handling -->
+  <script>
+    (function() {
+      const script = document.createElement('script');
+      script.src = 'https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js';
+      script.onload = function() {
+        console.log('MapLibre script loaded');
+
+        // Check if maplibregl is actually defined
+        if (typeof maplibregl !== 'undefined') {
+          console.log('MapLibre GL available, version:', maplibregl.version);
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('map').style.display = 'block';
+          document.getElementById('balloon-details').style.display = 'block';
+
+          // Now load your app module
+          const appScript = document.createElement('script');
+          appScript.type = 'module';
+          appScript.src = './app.js';
+          appScript.onerror = function() {
+            console.error('Failed to load app.js');
+            document.getElementById('loading').textContent = 'Failed to load application';
+          };
+          document.body.appendChild(appScript);
+        } else {
+          console.error('MapLibre GL loaded but maplibregl is undefined');
+          document.getElementById('loading').textContent = 'MapLibre GL failed to initialize';
+        }
+      };
+
+      script.onerror = function() {
+        console.error('Failed to load MapLibre GL script from CDN');
+        document.getElementById('loading').textContent = 'Failed to load MapLibre GL from CDN';
+      };
+
+      document.head.appendChild(script);
+    })();
+  </script>
 </body>
 </html>
