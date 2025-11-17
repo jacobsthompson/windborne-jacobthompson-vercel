@@ -14,7 +14,6 @@ let lineIds = [];
 const MAX_BALLOONS = 100;
 
 async function init() {
-  // Wait for map to be fully loaded before doing anything
   map.on('load', async () => {
     console.log('Map loaded, now fetching data');
     await loadData();
@@ -28,7 +27,15 @@ async function loadData() {
 
   const data = await fetch24hHistory();
   balloonTracks = data;
+
+  // Debug: Check the structure of the data
   console.log("Loaded balloons:", Object.keys(balloonTracks).length);
+  const firstBalloonId = Object.keys(balloonTracks)[0];
+  if (firstBalloonId) {
+    console.log("First balloon ID:", firstBalloonId);
+    console.log("First balloon points count:", balloonTracks[firstBalloonId].length);
+    console.log("First balloon sample point:", balloonTracks[firstBalloonId][0]);
+  }
 
   updateStatus(`Loaded ${Object.keys(balloonTracks).length} balloons`);
   renderTracks(balloonTracks);
@@ -38,7 +45,6 @@ function clearOldMarkers() {
   markers.forEach(m => m.remove());
   markers = [];
 
-  // Remove old trail lines
   lineIds.forEach(id => {
     if (map.getLayer(id)) map.removeLayer(id);
     if (map.getSource(id)) map.removeSource(id);
@@ -47,7 +53,6 @@ function clearOldMarkers() {
 }
 
 function renderTracks(byId) {
-  // Make sure map is loaded before rendering
   if (!map.isStyleLoaded()) {
     console.warn('Map style not loaded yet, waiting...');
     map.once('idle', () => renderTracks(byId));
@@ -59,19 +64,33 @@ function renderTracks(byId) {
   const balloonEntries = Object.entries(byId).slice(0, MAX_BALLOONS);
   console.log(`Rendering ${balloonEntries.length} balloons`);
 
+  let trailsDrawn = 0;
+  let markersDrawn = 0;
+
   balloonEntries.forEach(([id, points]) => {
-    if (!points.length) return;
+    console.log(`Processing balloon ${id}: ${points.length} points`);
+
+    if (!points.length) {
+      console.log(`  Skipping balloon ${id}: no points`);
+      return;
+    }
 
     const latest = points[points.length - 1];
-    if (latest.lat == null || latest.lon == null) return;
+    if (latest.lat == null || latest.lon == null) {
+      console.log(`  Skipping balloon ${id}: invalid latest position`);
+      return;
+    }
 
     // Draw trail line (if there are multiple points)
     if (points.length > 1) {
+      console.log(`  Attempting to draw trail for balloon ${id} with ${points.length} points`);
+
       const coords = points.map(p => [p.lon, p.lat]);
+      console.log(`  Trail coordinates (first 3):`, coords.slice(0, 3));
+
       const lineId = `line-${id}`;
 
       try {
-        // Check if source already exists (shouldn't, but just in case)
         if (map.getSource(lineId)) {
           map.removeLayer(lineId);
           map.removeSource(lineId);
@@ -104,9 +123,13 @@ function renderTracks(byId) {
         });
 
         lineIds.push(lineId);
+        trailsDrawn++;
+        console.log(`  ✓ Successfully drew trail for balloon ${id}`);
       } catch (e) {
-        console.error(`Failed to add line for balloon ${id}:`, e);
+        console.error(`  ✗ Failed to add line for balloon ${id}:`, e);
       }
+    } else {
+      console.log(`  Balloon ${id} has only ${points.length} point(s), skipping trail`);
     }
 
     // Add marker at latest position
@@ -132,10 +155,11 @@ function renderTracks(byId) {
     });
 
     markers.push(marker);
+    markersDrawn++;
   });
 
-  console.log(`Drew ${lineIds.length} trails and ${markers.length} markers`);
-  updateStatus(`Showing ${markers.length} balloons with ${lineIds.length} trails`);
+  console.log(`FINAL: Drew ${trailsDrawn} trails and ${markersDrawn} markers`);
+  updateStatus(`Showing ${markersDrawn} balloons with ${trailsDrawn} trails`);
 }
 
 function showBalloonDetails(points) {
@@ -161,7 +185,6 @@ function updateStatus(text) {
   if (statusEl) statusEl.textContent = text;
 }
 
-// Add refresh button handler
 const refreshBtn = document.getElementById('refresh-now');
 if (refreshBtn) {
   refreshBtn.addEventListener('click', () => {
