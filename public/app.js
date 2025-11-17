@@ -148,4 +148,37 @@ Flight History: ${points.length} data points over 24 hours
   `.trim();
 }
 
+function updateStatus(text) {
+  const statusEl = document.getElementById('status');
+  if (statusEl) statusEl.textContent = text;
+}
+
+// Update loadData to show status
+async function loadData() {
+  updateStatus('Refreshing data…');
+  console.log("Refreshing data...");
+  const data = await fetch24hHistory();
+  balloonTracks = data;
+  console.log("Loaded balloons:", Object.keys(balloonTracks).length);
+
+  updateStatus(`Loaded ${Object.keys(balloonTracks).length} balloons`);
+
+  if (!map.loaded()) {
+    map.once('load', () => renderTracks(balloonTracks));
+  } else {
+    renderTracks(balloonTracks);
+  }
+}
+
+// Add refresh button handler
+document.addEventListener('DOMContentLoaded', () => {
+  const refreshBtn = document.getElementById('refresh-now');
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', () => {
+      updateStatus('Manual refresh…');
+      loadData();
+    });
+  }
+});
+
 init();

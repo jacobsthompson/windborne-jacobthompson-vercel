@@ -1,44 +1,136 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Windborne Balloons Tracker</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>WindBorne Constellation — 24h Live</title>
 
   <!-- MapLibre GL CSS -->
   <link href="https://cdn.jsdelivr.net/npm/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
 
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    :root {
+      --bg: #0f1720;
+      --panel: #0b1220;
+      --muted: #9aa4b2;
+      --accent: #ff4f4f;
+      --glass: rgba(255,255,255,0.03);
     }
 
-    body, html {
+    * { box-sizing: border-box; }
+
+    html, body {
       height: 100%;
-      width: 100%;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      overflow: hidden;
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg, #071021 0%, #05121b 100%);
+      color: #e6eef6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      display: flex;
+      flex-direction: column;
     }
 
-    #map {
-      width: 100%;
-      height: 75vh;
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px;
+      gap: 12px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+      border-bottom: 1px solid rgba(255,255,255,0.03);
     }
 
-    #balloon-details {
-      width: 100%;
-      height: 25vh;
-      padding: 20px;
-      overflow-y: auto;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border-top: 3px solid #fff;
-      white-space: pre-wrap;
-      font-family: 'Courier New', monospace;
+    .topbar h1 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+
+    .status {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .main {
+      display: flex;
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
+    .sidebar {
+      width: 320px;
+      max-width: 40%;
+      background: var(--panel);
+      border-right: 1px solid rgba(255,255,255,0.03);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow: auto;
+    }
+
+    .panel {
+      background: var(--glass);
+      border-radius: 10px;
+      padding: 12px;
+      box-shadow: 0 6px 18px rgba(2,6,23,0.5);
+    }
+
+    .panel h2 {
+      margin: 0 0 8px 0;
       font-size: 14px;
-      line-height: 1.6;
+    }
+
+    .details {
+      white-space: pre-wrap;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
+      font-size: 13px;
+      color: #dcebf6;
+      margin: 0;
+      background: transparent;
+      border: 0;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
+      margin: 8px 0 0 0;
+    }
+
+    .map-container {
+      flex: 1 1 auto;
+      position: relative;
+      min-height: 0;
+    }
+
+    .footer {
+      padding: 8px 16px;
+      font-size: 12px;
+      color: var(--muted);
+      border-top: 1px solid rgba(255,255,255,0.02);
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      background: var(--accent);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      width: 100%;
+    }
+
+    button:hover {
+      background: #ff3838;
+    }
+
+    button:active {
+      transform: translateY(1px);
     }
 
     #loading {
@@ -58,8 +150,40 @@
 </head>
 <body>
   <div id="loading">Loading MapLibre...</div>
-  <div id="map" style="display: none;"></div>
-  <div id="balloon-details" style="display: none;">Click a balloon to see details</div>
+
+  <header class="topbar" style="display: none;">
+    <h1>WindBorne — 24h Constellation</h1>
+    <div id="status" class="status">Initializing…</div>
+  </header>
+
+  <main class="main" style="display: none;">
+    <aside class="sidebar">
+      <section class="panel">
+        <h2>Selected balloon</h2>
+        <pre id="balloon-details" class="details">Click a balloon marker to see details.</pre>
+      </section>
+
+      <section class="panel">
+        <h2>Controls</h2>
+        <button id="refresh-now">Refresh now</button>
+        <p class="muted">Auto-refresh every 5 minutes. Map updates live with latest 24h.</p>
+      </section>
+
+      <section class="panel">
+        <h2>About / Notes</h2>
+        <p class="muted">
+          This visualization combines WindBorne's live 24-hour balloon constellation with
+          Open-Meteo's Air Quality API to provide PM2.5/PM10/CO context at each fix.
+        </p>
+      </section>
+    </aside>
+
+    <div id="map" class="map-container"></div>
+  </main>
+
+  <footer class="footer" style="display: none;">
+    <div>Built for WindBorne challenge — dynamic 24-hour balloon history + air quality enrichment.</div>
+  </footer>
 
   <!-- Load MapLibre with proper error handling -->
   <script>
@@ -69,10 +193,17 @@
       script.onload = function() {
         if (typeof maplibregl !== 'undefined') {
           console.log('MapLibre GL available, version:', maplibregl.version);
-          document.getElementById('loading').style.display = 'none';
-          document.getElementById('map').style.display = 'block';
-          document.getElementById('balloon-details').style.display = 'block';
 
+          // Hide loading, show UI
+          document.getElementById('loading').style.display = 'none';
+          document.querySelector('.topbar').style.display = 'flex';
+          document.querySelector('.main').style.display = 'flex';
+          document.querySelector('.footer').style.display = 'block';
+
+          // Update status
+          document.getElementById('status').textContent = 'Loading data…';
+
+          // Load the app
           const appScript = document.createElement('script');
           appScript.type = 'module';
           appScript.src = './app.js';
