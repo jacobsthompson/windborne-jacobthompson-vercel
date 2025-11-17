@@ -12,7 +12,7 @@ let balloonTracks = {};
 let markers = [];
 let lineIds = [];
 let activePopup = null;
-const MAX_BALLOONS = 100;
+let MAX_BALLOONS = 100;
 
 let selectedBalloonID = null;
 
@@ -232,6 +232,19 @@ const refreshBtn = document.getElementById('refresh-now');
 if (refreshBtn) {
   refreshBtn.addEventListener('click', () => {
     updateStatus('Manual refresh…');
+    loadData();
+  });
+}
+
+const slider = document.getElementById('max-balloons-slider');
+const sliderValue = document.getElementById('max-balloons-value');
+
+if (slider) {
+  slider.addEventListener('input', () => {
+    MAX_BALLOONS = parseInt(slider.value, 10);
+    sliderValue.textContent = MAX_BALLOONS;
+
+    // Optionally, refresh map immediately when slider changes
     loadData();
   });
 }
