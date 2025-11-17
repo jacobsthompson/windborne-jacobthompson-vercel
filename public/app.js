@@ -166,6 +166,7 @@ function renderTracks(byId) {
 
       lineIds.forEach(id => {
         if (id !== lineId) {
+          el.style.opacity = '0.5'
           map.setPaintProperty(id, 'line-opacity', 0.5);
         }
       });
