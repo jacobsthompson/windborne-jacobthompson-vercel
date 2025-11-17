@@ -11,6 +11,7 @@ const map = new maplibregl.Map({
 let balloonTracks = {};
 let markers = [];
 let lineIds = [];
+let activePopup = null;
 const MAX_BALLOONS = 100;
 
 async function init() {
@@ -47,6 +48,11 @@ function clearOldMarkers() {
     if (map.getSource(id)) map.removeSource(id);
   });
   lineIds = [];
+
+  if (activePopup) {
+    activePopup.remove();
+    activePopup = null;
+  }
 }
 
 function renderTracks(byId) {
@@ -70,7 +76,7 @@ function renderTracks(byId) {
     const latest = points[points.length - 1];
     if (latest.lat == null || latest.lon == null) return;
 
-    // Draw trail line for ALL points (even if just 1)
+    // Draw trail line
     const coords = points.map(p => [p.lon, p.lat]);
     const lineId = `line-${id}`;
 
@@ -100,18 +106,14 @@ function renderTracks(byId) {
           "line-cap": "round"
         },
         paint: {
-          "line-color": "#ff4f4f",  // Bright red
-          "line-width": 3,           // Thicker line
-          "line-opacity": 1          // Fully opaque
+          "line-color": "#ff4f4f",
+          "line-width": 3,
+          "line-opacity": 0.5  // Half opacity by default
         }
       });
 
       lineIds.push(lineId);
       trailsDrawn++;
-
-      if (trailsDrawn <= 3) {
-        console.log(`Trail ${trailsDrawn}: ${points.length} points from (${coords[0][1].toFixed(2)}, ${coords[0][0].toFixed(2)}) to (${coords[coords.length-1][1].toFixed(2)}, ${coords[coords.length-1][0].toFixed(2)})`);
-      }
     } catch (e) {
       console.error(`Failed to add line for balloon ${id}:`, e);
     }
@@ -119,20 +121,56 @@ function renderTracks(byId) {
     // Add marker at latest position
     const el = document.createElement('div');
     el.className = 'marker';
-    el.style.backgroundColor = '#ffff00';  // Yellow marker
+    el.style.backgroundColor = '#ffff00';
     el.style.width = '16px';
     el.style.height = '16px';
     el.style.borderRadius = '50%';
     el.style.border = '3px solid #ff4f4f';
     el.style.cursor = 'pointer';
     el.style.boxShadow = '0 2px 8px rgba(0,0,0,0.5)';
-    el.style.zIndex = '1000';
+    el.style.opacity = '0.5';  // Half opacity by default
+    el.style.transition = 'opacity 0.2s ease';
 
     const marker = new maplibregl.Marker({ element: el })
       .setLngLat([latest.lon, latest.lat])
       .addTo(map);
 
-    marker.getElement().addEventListener("click", async () => {
+    // Hover effect - highlight marker and trail
+    el.addEventListener("mouseenter", () => {
+      el.style.opacity = '1';
+      map.setPaintProperty(lineId, 'line-opacity', 1);
+    });
+
+    el.addEventListener("mouseleave", () => {
+      el.style.opacity = '0.5';
+      map.setPaintProperty(lineId, 'line-opacity', 0.5);
+    });
+
+    // Click - show popup and details
+    el.addEventListener("click", async () => {
+      // Remove previous popup if exists
+      if (activePopup) {
+        activePopup.remove();
+      }
+
+      // Create popup with balloon info
+      const popupHTML = `
+        <div style="font-family: monospace; font-size: 12px; min-width: 200px;">
+          <strong>${latest.id}</strong><br/>
+          ${latest.lat.toFixed(4)}°N, ${latest.lon.toFixed(4)}°E
+        </div>
+      `;
+
+      activePopup = new maplibregl.Popup({
+        closeButton: true,
+        closeOnClick: true,
+        offset: 25
+      })
+        .setLngLat([latest.lon, latest.lat])
+        .setHTML(popupHTML)
+        .addTo(map);
+
+      // Update details panel
       if (!latest.air) {
         latest.air = await fetchAirQuality(latest.lat, latest.lon);
       }
