@@ -164,10 +164,12 @@ function renderTracks(byId) {
       el.style.opacity = '1'
       map.setPaintProperty(lineId, 'line-opacity', 1);
 
-      lineIds.forEach(id => {
+      lineIds.forEach((id, index) => {
         if (id !== lineId) {
-          el.style.opacity = '0.5'
           map.setPaintProperty(id, 'line-opacity', 0.5);
+          if (markers[index]) {
+            markers[index].getElement().style.opacity = '0.5';
+          }
         }
       });
 
