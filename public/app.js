@@ -28,13 +28,10 @@ async function loadData() {
   const data = await fetch24hHistory();
   balloonTracks = data;
 
-  // Debug: Check the structure of the data
   console.log("Loaded balloons:", Object.keys(balloonTracks).length);
   const firstBalloonId = Object.keys(balloonTracks)[0];
   if (firstBalloonId) {
-    console.log("First balloon ID:", firstBalloonId);
-    console.log("First balloon points count:", balloonTracks[firstBalloonId].length);
-    console.log("First balloon sample point:", balloonTracks[firstBalloonId][0]);
+    console.log("Sample balloon:", firstBalloonId, "has", balloonTracks[firstBalloonId].length, "points");
   }
 
   updateStatus(`Loaded ${Object.keys(balloonTracks).length} balloons`);
@@ -68,80 +65,68 @@ function renderTracks(byId) {
   let markersDrawn = 0;
 
   balloonEntries.forEach(([id, points]) => {
-    console.log(`Processing balloon ${id}: ${points.length} points`);
-
-    if (!points.length) {
-      console.log(`  Skipping balloon ${id}: no points`);
-      return;
-    }
+    if (!points.length) return;
 
     const latest = points[points.length - 1];
-    if (latest.lat == null || latest.lon == null) {
-      console.log(`  Skipping balloon ${id}: invalid latest position`);
-      return;
-    }
+    if (latest.lat == null || latest.lon == null) return;
 
-    // Draw trail line (if there are multiple points)
-    if (points.length > 1) {
-      console.log(`  Attempting to draw trail for balloon ${id} with ${points.length} points`);
+    // Draw trail line for ALL points (even if just 1)
+    const coords = points.map(p => [p.lon, p.lat]);
+    const lineId = `line-${id}`;
 
-      const coords = points.map(p => [p.lon, p.lat]);
-      console.log(`  Trail coordinates (first 3):`, coords.slice(0, 3));
-
-      const lineId = `line-${id}`;
-
-      try {
-        if (map.getSource(lineId)) {
-          map.removeLayer(lineId);
-          map.removeSource(lineId);
-        }
-
-        map.addSource(lineId, {
-          type: "geojson",
-          data: {
-            type: "Feature",
-            geometry: {
-              type: "LineString",
-              coordinates: coords
-            }
-          }
-        });
-
-        map.addLayer({
-          id: lineId,
-          type: "line",
-          source: lineId,
-          layout: {
-            "line-join": "round",
-            "line-cap": "round"
-          },
-          paint: {
-            "line-color": "#ff6b6b",
-            "line-width": 2,
-            "line-opacity": 0.7
-          }
-        });
-
-        lineIds.push(lineId);
-        trailsDrawn++;
-        console.log(`  ✓ Successfully drew trail for balloon ${id}`);
-      } catch (e) {
-        console.error(`  ✗ Failed to add line for balloon ${id}:`, e);
+    try {
+      if (map.getSource(lineId)) {
+        map.removeLayer(lineId);
+        map.removeSource(lineId);
       }
-    } else {
-      console.log(`  Balloon ${id} has only ${points.length} point(s), skipping trail`);
+
+      map.addSource(lineId, {
+        type: "geojson",
+        data: {
+          type: "Feature",
+          geometry: {
+            type: "LineString",
+            coordinates: coords
+          }
+        }
+      });
+
+      map.addLayer({
+        id: lineId,
+        type: "line",
+        source: lineId,
+        layout: {
+          "line-join": "round",
+          "line-cap": "round"
+        },
+        paint: {
+          "line-color": "#ff4f4f",  // Bright red
+          "line-width": 3,           // Thicker line
+          "line-opacity": 1          // Fully opaque
+        }
+      });
+
+      lineIds.push(lineId);
+      trailsDrawn++;
+
+      if (trailsDrawn <= 3) {
+        console.log(`Trail ${trailsDrawn}: ${points.length} points from (${coords[0][1].toFixed(2)}, ${coords[0][0].toFixed(2)}) to (${coords[coords.length-1][1].toFixed(2)}, ${coords[coords.length-1][0].toFixed(2)})`);
+      }
+    } catch (e) {
+      console.error(`Failed to add line for balloon ${id}:`, e);
     }
 
     // Add marker at latest position
     const el = document.createElement('div');
     el.className = 'marker';
-    el.style.backgroundColor = '#ff4f4f';
-    el.style.width = '12px';
-    el.style.height = '12px';
+    el.style.backgroundColor = '#ffff00';  // Yellow marker
+    el.style.width = '16px';
+    el.style.height = '16px';
     el.style.borderRadius = '50%';
-    el.style.border = '2px solid white';
+    el.style.border = '3px solid #ff4f4f';
     el.style.cursor = 'pointer';
-    el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
+    el.style.boxShadow = '0 2px 8px rgba(0,0,0,0.5)';
+    el.style.zIndex = '1000';
 
     const marker = new maplibregl.Marker({ element: el })
       .setLngLat([latest.lon, latest.lat])

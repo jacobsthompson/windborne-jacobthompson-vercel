@@ -9,13 +9,12 @@ export async function fetchBalloonState(offset) {
       return [];
     }
 
-    // Return raw balloon data with offset info
+    // Each balloon at each time gets its position index as ID
     return json
       .filter(x => Array.isArray(x) && x.length >= 2)
       .map((x, i) => ({
-        // Create a consistent ID based on approximate position
-        // Round to 1 decimal to group nearby positions as same balloon
-        positionKey: `${x[0].toFixed(1)}_${x[1].toFixed(1)}`,
+        // Use index as balloon ID - assumes same order across time
+        balloonIndex: i,
         lat: x[0],
         lon: x[1],
         alt: x[2] ?? null,
@@ -35,36 +34,34 @@ export async function fetch24hHistory() {
   const flat = all.flat();
   console.log("Total data points collected:", flat.length);
 
-  // Group by approximate position (balloons move, so group nearby positions)
-  const byPosition = {};
+  // Group by balloon index (assumes API returns balloons in consistent order)
+  const byIndex = {};
   for (const p of flat) {
-    if (!byPosition[p.positionKey]) byPosition[p.positionKey] = [];
-    byPosition[p.positionKey].push(p);
+    const idx = p.balloonIndex;
+    if (!byIndex[idx]) byIndex[idx] = [];
+    byIndex[idx].push(p);
   }
 
-  // Now create unique IDs for each group and flatten
+  // Convert to ID-based structure and add IDs
   const byId = {};
-  let balloonCount = 0;
+  for (const idx in byIndex) {
+    const id = `balloon-${idx}`;
+    const points = byIndex[idx];
 
-  for (const posKey in byPosition) {
-    const points = byPosition[posKey];
-    // Only keep groups with multiple time points (actual trajectories)
-    if (points.length >= 2) {
-      const id = `balloon-${balloonCount++}`;
-      byId[id] = points.map(p => ({ ...p, id }));
-    }
+    // Sort by time offset
+    points.sort((a, b) => a.timeOffsetHrs - b.timeOffsetHrs);
+
+    // Add ID to each point
+    points.forEach(p => p.id = id);
+
+    byId[id] = points;
   }
 
-  // Sort each balloon's points by time
-  Object.values(byId).forEach(arr =>
-    arr.sort((a, b) => a.timeOffsetHrs - b.timeOffsetHrs)
-  );
+  console.log(`Created ${Object.keys(byId).length} balloon tracks`);
 
-  console.log(`Created ${Object.keys(byId).length} balloon trajectories`);
-  if (Object.keys(byId).length > 0) {
-    const firstId = Object.keys(byId)[0];
-    console.log(`Sample: ${firstId} has ${byId[firstId].length} points`);
-  }
+  // Show stats
+  const pointCounts = Object.values(byId).map(arr => arr.length);
+  console.log(`Points per balloon - min: ${Math.min(...pointCounts)}, max: ${Math.max(...pointCounts)}, avg: ${(pointCounts.reduce((a,b)=>a+b,0)/pointCounts.length).toFixed(1)}`);
 
   return byId;
 }
