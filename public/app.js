@@ -241,11 +241,12 @@ const sliderValue = document.getElementById('max-balloons-value');
 
 if (slider) {
   slider.addEventListener('input', () => {
-    MAX_BALLOONS = parseInt(slider.value, 10);
-    sliderValue.textContent = MAX_BALLOONS;
-
-    // Optionally, refresh map immediately when slider changes
-    loadData();
+      let NEW_MAX_BALLOONS = parseInt(slider.value, 10);
+      sliderValue.textContent = MAX_BALLOONS;
+      if(!(MAX_BALLOONS === NEW_MAX_BALLOONS)){
+        // Optionally, refresh map immediately when slider changes
+        loadData();
+      }
   });
 }
 
