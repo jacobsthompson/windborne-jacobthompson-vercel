@@ -153,23 +153,6 @@ function updateStatus(text) {
   if (statusEl) statusEl.textContent = text;
 }
 
-// Update loadData to show status
-async function loadData() {
-  updateStatus('Refreshing data…');
-  console.log("Refreshing data...");
-  const data = await fetch24hHistory();
-  balloonTracks = data;
-  console.log("Loaded balloons:", Object.keys(balloonTracks).length);
-
-  updateStatus(`Loaded ${Object.keys(balloonTracks).length} balloons`);
-
-  if (!map.loaded()) {
-    map.once('load', () => renderTracks(balloonTracks));
-  } else {
-    renderTracks(balloonTracks);
-  }
-}
-
 // Add refresh button handler
 document.addEventListener('DOMContentLoaded', () => {
   const refreshBtn = document.getElementById('refresh-now');
