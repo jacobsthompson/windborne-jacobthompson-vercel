@@ -1,5 +1,5 @@
-import { fetch24hHistory } from "../lib/balloons.js";
-import { fetchAirQuality } from "../lib/airquality.js";
+import { fetch24hHistory } from "./lib/balloons.js";
+import { fetchAirQuality } from "./lib/airquality.js";
 
 // ---------------- Map Setup ----------------
 const map = new maplibregl.Map({
