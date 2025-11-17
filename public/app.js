@@ -144,7 +144,7 @@ function renderTracks(byId) {
     });
 
     el.addEventListener("mouseleave", () => {
-      if (selectedBalloonID == lineId){
+      if (selectedBalloonID === lineId){
         el.style.opacity = '1';
         map.setPaintProperty(lineId, 'line-opacity', 1);
       } else {
