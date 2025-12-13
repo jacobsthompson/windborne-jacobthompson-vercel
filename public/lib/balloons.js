@@ -14,7 +14,7 @@ export async function fetchCurrentBalloons() {
       .filter(x => Array.isArray(x) && x.length >= 2)
       .map((x, i) => ({
         // Use index as balloon ID - assumes same order across time
-        id: `balloon-${i}`,
+        id: `Balloon ${i}`,
         lat: x[0],
         lon: x[1],
         alt: x[2] ?? null
