@@ -14,7 +14,7 @@ let burgerKings = [];
 
 async function loadBurgerKings() {
   try {
-    const res = await fetch('/burgerking_locations.json');
+    const res = await fetch('/burgerking_worldwide_locations.json');
     burgerKings = await res.json();
     renderBKMarkers();
   } catch (err) {
@@ -41,6 +41,10 @@ function renderBKMarkers() {
 
       const el = document.createElement('div');
       el.className = 'bk-marker';
+      el.className = 'balloon-marker';
+      el.textContent = '🍔';
+      el.style.fontSize = '24px';
+      el.style.cursor = 'pointer';
 
       const marker = new maplibregl.Marker({ element: el })
         .setLngLat([bk.lon, bk.lat])
@@ -61,11 +65,8 @@ function renderBalloonMarkers() {
 
     const el = document.createElement('div');
     el.className = 'balloon-marker';
-    el.style.backgroundColor = '#ffff00';
-    el.style.width = '16px';
-    el.style.height = '16px';
-    el.style.borderRadius = '50%';
-    el.style.border = '3px solid #ff4f4f';
+    el.textContent = '🎈';
+    el.style.fontSize = '24px';
     el.style.cursor = 'pointer';
 
     const marker = new maplibregl.Marker({ element: el })
