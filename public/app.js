@@ -1,8 +1,5 @@
 import { fetchCurrentBalloons } from "./lib/balloons.js";
-import {
-  fetchBurgerKingLocations,
-  createBalloonBKConnections
-} from "./lib/burgerKings.js";
+import { fetchBurgerKingLocations, createBalloonBKConnections } from "./lib/burgerking.js";
 
 /* ================================
    Map setup
