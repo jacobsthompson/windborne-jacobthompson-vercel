@@ -4,6 +4,7 @@ import { findClosestBurgerKing } from './lib/burgerking.js';
 const map = new maplibregl.Map({
   container: 'map',
   style: 'https://demotiles.maplibre.org/style.json',
+  projection: 'globe',
   center: [-98.5795, 39.8283],
   zoom: 4
 });
