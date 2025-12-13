@@ -20,7 +20,7 @@ export async function fetchCurrentBalloons() {
         alt: x[2] ?? null
       }));
   } catch (e) {
-    console.warn("Corrupted or missing file:", offset, e);
+    console.warn("Corrupted or missing file:", e);
     return [];
   }
 }
