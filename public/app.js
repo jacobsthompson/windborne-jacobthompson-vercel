@@ -14,7 +14,7 @@ let burgerKings = [];
 
 async function loadBurgerKings() {
   try {
-    const res = await fetch('/burgerkings_clean.json');
+    const res = await fetch('/burgerking_locations.json');
     burgerKings = await res.json();
     renderBKMarkers();
   } catch (err) {
