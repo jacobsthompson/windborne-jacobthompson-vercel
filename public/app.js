@@ -29,9 +29,10 @@ async function init() {
     renderMap(balloons,burgerkings);
 
     currentIndex = 0;
+    selectByIndex(currentIndex);
     setupUI();
     updateUI();
-    flyToCurrent();
+    fitToConnection();
 
     // Refresh balloons every 5 min
     setInterval(loadData, 5 * 60 * 1000);
