@@ -28,12 +28,11 @@ async function loadData() {
     const res = await fetch('/burgerking_worldwide_locations.json');
     burgerkings = await res.json();
     balloons = await fetchCurrentBalloons();
-    renderMap();
+    renderMap(balloons, burgerkings);
   } catch (err) {
     console.error('Failed to load Burger Kings:', err);
   }
 }
-
 
 function createConnections(balloons, burgerkings) {
   const usedBKs = new Set();
