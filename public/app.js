@@ -144,7 +144,7 @@ function updateUI() {
   if (!c) return;
 
   document.getElementById("distance-text").textContent =
-    `Balloon #${c.id} is ${toMiles(c.distance)} miles away from Burger King`;
+    `Balloon #${c.balloon.id} is ${toMiles(c.distance)} miles away from Burger King`;
 
   document.getElementById("location-text").textContent =
     `Lat ${c.balloon.lat.toFixed(3)}, Lon ${c.balloon.lon.toFixed(3)}`;
