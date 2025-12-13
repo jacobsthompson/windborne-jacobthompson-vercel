@@ -38,7 +38,7 @@ async function loadData() {
     const bkData = await fetchBurgerKingLocations();
     console.log(`Received ${bkData.length} Burger Kings`);
 
-    balloons = balloonsData.slice(0, MAX_BALLOONS);
+    balloons = balloonsData;
     burgerKings = bkData;
 
     console.log(`Using ${balloons.length} balloons and ${burgerKings.length} Burger Kings`);
