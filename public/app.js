@@ -24,7 +24,9 @@ async function init() {
 
     const result = createConnections(balloons,burgerkings);
     connections = result.connections;
+    console.log(burgerkings);
     burgerkings = result.filteredBKs;
+    console.log(burgerkings);
 
     renderMap(balloons,burgerkings);
 
