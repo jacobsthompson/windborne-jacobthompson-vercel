@@ -10,7 +10,6 @@ const map = new maplibregl.Map({
 
 let balloons = [];
 let burgerkings = [];
-let activeBKS = [];
 let markers = [];
 
 let connections = [];
@@ -25,14 +24,12 @@ async function init() {
 
     const result = createConnections(balloons,burgerkings);
     connections = result.connections;
-    console.log(burgerkings);
-    activeBKS = result.filteredBKs;
-    console.log(activeBKS);
+    burgerkings = result.filteredBKs;
 
-    renderMap(balloons,activeBKS);
+    renderMap(balloons,burgerkings);
 
     currentIndex = 0;
-    selectedConnection = connections[currentIndex];
+    selectByIndex(currentIndex);
     setupUI();
     updateUI();
     fitToConnection(selectedConnection);
@@ -62,15 +59,11 @@ function createConnections(balloons, burgerkings) {
   const connections = balloons.map(balloon => {
     const closestBK = findClosestBurgerKing(balloon, burgerkings);
     usedBKs.add(closestBK.bk.id);
-
     return { balloon, burgerKing: closestBK.bk, distance: closestBK.distance };
   }).filter(Boolean);
 
-  console.log(usedBKs);
-
   // Only keep BKs that have at least one connection
   const filteredBKs = burgerkings.filter(bk => usedBKs.has(bk.id));
-  console.log(filteredBKs);
   connections.sort((a,b) => a.distance - b.distance);
   return { connections, filteredBKs };
 }
