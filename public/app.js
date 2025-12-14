@@ -61,8 +61,7 @@ function createConnections(balloons, burgerkings) {
   const usedBKs = new Set();
   const connections = balloons.map(balloon => {
     const closestBK = findClosestBurgerKing(balloon, burgerkings);
-    console.log(closestBK.id);
-    usedBKs.add(closestBK.id);
+    usedBKs.add(closestBK.bk.id);
 
     return { balloon, burgerKing: closestBK.bk, distance: closestBK.distance };
   }).filter(Boolean);
@@ -70,8 +69,6 @@ function createConnections(balloons, burgerkings) {
   console.log(usedBKs);
 
   // Only keep BKs that have at least one connection
-
-  console.log(burgerkings.filter(bk => usedBKs.has(bk.id)));
   const filteredBKs = burgerkings.filter(bk => usedBKs.has(bk.id));
   console.log(filteredBKs);
   connections.sort((a,b) => a.distance - b.distance);
