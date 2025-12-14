@@ -128,7 +128,7 @@ function renderMap(balloons, burgerkings) {
   });
 
   // Draw connections with lines
-  connections.forEach(conn => {
+  connections.forEach(((conn, index) => {
     if (!conn.burgerKing) return;
 
     const lineId = `line-${conn.balloon.id}`;
