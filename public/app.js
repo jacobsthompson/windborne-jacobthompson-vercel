@@ -285,9 +285,13 @@ function setupUI() {
   // Info button functionality
   document.getElementById('info-btn').addEventListener('click', async () => {
     try {
-      const res = await fetch('README.md'); // Make sure README.md is in public folder
+      const res = await fetch('README.md'); // Your README.md file
       const readmeText = await res.text();
-      document.getElementById('readme-content').textContent = readmeText;
+
+      // Convert Markdown to HTML
+      document.getElementById('readme-content').innerHTML = marked.parse(readmeText);
+
+      // Show modal
       document.getElementById('readme-modal').style.display = 'block';
     } catch (err) {
       console.error('Failed to load README:', err);

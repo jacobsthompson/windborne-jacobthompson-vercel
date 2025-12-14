@@ -12,6 +12,10 @@
 
   <!-- App styles -->
   <link rel="stylesheet" href="style.css" />
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css" />
+
 </head>
 
 <body>
@@ -46,46 +50,46 @@
   </div>
 
   <!-- Info Button -->
-<button id="info-btn" style="
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 1000;
-  padding: 8px 12px;
-  font-size: 16px;
-  cursor: pointer;
-">ℹ️ Info</button>
+  <button id="info-btn" style="
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    padding: 8px 12px;
+    font-size: 16px;
+    cursor: pointer;
+  ">ℹ️</button>
 
-<!-- README Modal -->
-<div id="readme-modal" style="
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0,0,0,0.7);
-  z-index: 10000;
-  overflow-y: auto;
-">
-  <div style="
-    background: #fff;
-    margin: 50px auto;
-    padding: 20px;
-    max-width: 800px;
-    border-radius: 10px;
-    position: relative;
+  <div id="readme-modal" style="
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.7);
+    z-index: 10000;
+    overflow-y: auto;
   ">
-    <button id="close-readme" style="
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      font-size: 20px;
-      cursor: pointer;
-    ">✖</button>
-    <div id="readme-content" style="white-space: pre-wrap; font-family: monospace;"></div>
+    <div style="
+      background: #fff;
+      margin: 50px auto;
+      padding: 20px;
+      max-width: 900px;
+      border-radius: 10px;
+      position: relative;
+    ">
+      <button id="close-readme" style="
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 20px;
+        cursor: pointer;
+      ">✖</button>
+      <article id="readme-content" class="markdown-body"></article>
+    </div>
   </div>
-</div>
+
 
 
   <!-- Map container -->
