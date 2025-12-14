@@ -281,6 +281,25 @@ function setupUI() {
     fitToConnection(selectedConnection);
     updateUI();
   };
+
+  // Info button functionality
+  document.getElementById('info-btn').addEventListener('click', async () => {
+    try {
+      const res = await fetch('README.md'); // Make sure README.md is in public folder
+      const readmeText = await res.text();
+      document.getElementById('readme-content').textContent = readmeText;
+      document.getElementById('readme-modal').style.display = 'block';
+    } catch (err) {
+      console.error('Failed to load README:', err);
+      document.getElementById('readme-content').textContent = "Failed to load README.";
+      document.getElementById('readme-modal').style.display = 'block';
+    }
+  });
+
+  document.getElementById('close-readme').addEventListener('click', () => {
+    document.getElementById('readme-modal').style.display = 'none';
+  });
+
 }
 
 init();
