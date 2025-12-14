@@ -29,7 +29,7 @@ async function init() {
     renderMap(balloons,burgerkings);
 
     currentIndex = 0;
-    selectByIndex(currentIndex);
+    selectedConnection = connections[currentIndex];
     setupUI();
     updateUI();
     fitToConnection(selectedConnection);
