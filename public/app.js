@@ -10,6 +10,7 @@ const map = new maplibregl.Map({
 
 let balloons = [];
 let burgerkings = [];
+let activeBKS = [];
 let markers = [];
 
 let connections = [];
@@ -25,10 +26,10 @@ async function init() {
     const result = createConnections(balloons,burgerkings);
     connections = result.connections;
     console.log(burgerkings);
-    burgerkings = result.filteredBKs;
+    activeBKS = result.filteredBKs;
     console.log(burgerkings);
 
-    renderMap(balloons,burgerkings);
+    renderMap(balloons,activeBKS);
 
     currentIndex = 0;
     selectedConnection = connections[currentIndex];
