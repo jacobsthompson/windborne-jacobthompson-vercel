@@ -54,8 +54,10 @@ function createConnections(balloons, burgerkings) {
   const usedBKs = new Set();
   const connections = balloons.map(balloon => {
     const closestBK = findClosestBurgerKing(balloon, burgerkings);
-    if (closestBK) usedBKs.add(closestBK.id); // track which BKs are used
-    return { balloon, burgerKing: closestBK.bk, distance: closestBK.distance };
+    if (closestBK) {
+      usedBKs.add(closestBK.id);
+      return { balloon, burgerKing: closestBK.bk, distance: closestBK.distance };
+    }
   }).filter(Boolean);
 
   // Only keep BKs that have at least one connection
