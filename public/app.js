@@ -131,7 +131,9 @@ function renderMap(balloons, burgerkings) {
     if (!conn.burgerKing) return;
 
     const lineId = `line-${conn.balloon.id}`;
-    if (map.getSource(lineId)) map.removeLayer(lineId);
+    if (map.getLayer(lineId)) map.removeLayer(lineId);
+    if (map.getSource(lineId)) map.removeSource(lineId);
+
 
     map.addSource(lineId, {
       type: 'geojson',
