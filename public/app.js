@@ -26,7 +26,7 @@ async function init() {
     connections = result.connections;
     burgerkings = result.filteredBKs;
 
-    renderMap(balloons,result.filteredBKs);
+    renderMap(balloons,burgerkings);
 
     currentIndex = 0;
     selectedConnection = connections[currentIndex];
@@ -51,14 +51,13 @@ async function loadData() {
 }
 
 function createConnections(balloons, burgerkings) {
+  if (!burgerkings.length) {
+    throw new Error("No Burger Kings loaded");
+  }
+
   const usedBKs = new Set();
   const connections = balloons.map(balloon => {
     const closestBK = findClosestBurgerKing(balloon, burgerkings);
-
-
-    if (!closestBK) {
-      return { balloon, burgerKing: null, distance: Infinity };
-    }
 
     usedBKs.add(closestBK.id);
 
