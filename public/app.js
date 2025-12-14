@@ -100,7 +100,7 @@ function renderMap(balloons, burgerkings) {
 });
 
   // Render Burger Kings 🍔 (only those used)
-  burgerkings.forEach(bk => {
+  filteredBKs.forEach(bk => {
   const el = document.createElement('div');
   el.className = "marker marker-bk";
   el.textContent = "🍔";
@@ -111,6 +111,15 @@ function renderMap(balloons, burgerkings) {
   })
     .setLngLat([bk.lon, bk.lat])
     .addTo(map);
+
+  el.addEventListener('click', () => {
+    const conn = connections.find(c => c.burgerKing.id === bk.id);
+    console.log("Clicked");
+    if (!conn) return;
+    console.log("Clicked 2");
+    selectConnection(conn);
+    fitToConnection(selectedConnection);
+  });
 
   markers.push(marker);
   });
