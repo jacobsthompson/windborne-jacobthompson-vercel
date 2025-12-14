@@ -83,4 +83,5 @@ button:active {
   text-align: center;
   font-size: 24px;
   user-select: none;
+  transform: translate(-50%, -50%);
 }
